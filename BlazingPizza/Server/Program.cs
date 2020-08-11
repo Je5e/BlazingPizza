@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
+using BlazingPizza.Server.Models;
+
 
 namespace BlazingPizza.Server
 {
@@ -13,7 +16,18 @@ namespace BlazingPizza.Server
     {
         public static void Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            var Host = CreateHostBuilder(args).Build();
+
+            var ScopeFactory = Host.Services.GetRequiredService<IServiceScopeFactory>();
+            using (var Scope = ScopeFactory.CreateScope())
+            {
+                var Context = Scope.ServiceProvider.GetRequiredService<PizzaStoreContext>();
+                if (Context.Specials.Count() == 0)
+                {
+                    SeedData.Initialize(Context);
+                }
+            }
+            Host.Run();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
