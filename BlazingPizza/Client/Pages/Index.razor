@@ -7,7 +7,8 @@
         {
             foreach (var Special in Specials)
             {
-                <li style="background-image:url('@Special.ImageUrl')">
+                <li @onclick="@(()=>ShowConfigurePizzaDialog(Special))"
+                    style="background-image:url('@Special.ImageUrl')">
                     <div class="pizza-info">
                         <span class="title">@Special.Name</span>
                         @Special.Description
@@ -17,15 +18,95 @@
                 </li>
             }
         }
-        </ul>
+    </ul>
+</div>
+
+<div class="sidebar">
+    @if (Order.Pizzas.Any())
+    {
+        <div class="order-contents">
+            <h2>Tu orden</h2>
+
+            @foreach (var ConfiguredPizza in Order.Pizzas)
+            {
+                <ConfiguredPizzaItem Pizza="ConfiguredPizza"
+                                     OnRemove="@(()=>RemoveConfiguredPizza(ConfiguredPizza))"/>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="empty-cart">Selecciona una pizza<br>para empezar</div>
+    }
+    <div class="order-total @(Order.Pizzas.Any() ? "": "hidden")">
+        Total:
+        <span class="total-price">@Order.GetFormattedTotalPrice()</span>
+        <button class="btn btn-warning"
+                disabled="@(Order.Pizzas.Count==0)" @onclick="@PlaceOrder">
+            Ordenar >
+        </button>
     </div>
+</div>
+@if (ShowingConfigureDialog)
+{
+    <ConfigurePizzaDialog Pizza="ConfiguringPizza"
+                          OnConfirm="ConfirmConfigurePizzaDialog"
+                          OnCancel="CancelConfiguringPizzaDialog">
 
-    @code{
-        List<PizzaSpecial> Specials;
+    </ConfigurePizzaDialog>
+}
+@code{
 
-protected async override Task OnInitializedAsync()
+    Pizza ConfiguringPizza;
+    bool ShowingConfigureDialog;
+    List<PizzaSpecial> Specials;
+
+    Order Order = new Order();
+
+    void RemoveConfiguredPizza(Pizza pizza)
+    {
+        Order.Pizzas.Remove(pizza);
+    }
+
+    async Task PlaceOrder()
+    {
+        await HttpClient.PostAsJsonAsync("orders", Order);
+        Order = new Order();
+    }
+    void ConfirmConfigurePizzaDialog()
+    {
+        Order.Pizzas.Add(ConfiguringPizza);
+        ConfiguringPizza = null;
+
+        ShowingConfigureDialog = false;
+
+        foreach (var pizza in Order.Pizzas) // La orden no se puede ver...
+        {
+            Console.WriteLine(pizza.Special.Name);
+        }
+    }
+
+    void ShowConfigurePizzaDialog(PizzaSpecial special)
+    {
+        ConfiguringPizza = new Pizza()
+        {
+            Special = special,
+            SpecialId = special.Id,
+            Size = Pizza.DefaultSize,
+            Toppings = new List<PizzaTopping>(),
+        };
+
+        ShowingConfigureDialog = true;
+    }
+    protected async override Task OnInitializedAsync()
     {
         Specials =
             await HttpClient.GetFromJsonAsync<List<PizzaSpecial>>("specials");
     }
+
+    void CancelConfiguringPizzaDialog()
+    {
+        ConfiguringPizza = null;
+        ShowingConfigureDialog = false;
     }
+}
