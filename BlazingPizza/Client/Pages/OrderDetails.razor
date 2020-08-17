@@ -1,0 +1,79 @@
+﻿@page "/myorders/{orderId:int}"
+@using System.Threading
+@inject HttpClient HttpClient
+@implements IDisposable
+
+<div class="main">
+    @if (InvalidOrder)
+    {
+        <h2>¡No!</h2>
+        <p>Lo sentimos, esta orden no puede ser cargada. </p>
+    }
+    else if (OrderWithStatus == null)
+    {
+        <text>Cargando...</text>
+    }
+    else
+    {
+        <div class="track-order">
+            <div class="track-order-title">
+                <h2>
+                    Pedido realizado
+                    @OrderWithStatus.Order.GetFormattedCreatedTime()
+                </h2>
+                <p class="ml-auto mb-0">
+                    Estatus: <strong>@OrderWithStatus.StatusText</strong>
+                </p>
+            </div>
+            <div class="track-order-details">
+                <OrderReview Order="OrderWithStatus.Order"></OrderReview>
+            </div>
+        </div>
+    }
+</div>
+@code {
+
+    [Parameter]
+    public int OrderId { get; set; }
+
+    OrderWithStatus OrderWithStatus;
+    bool InvalidOrder;
+
+    CancellationTokenSource PollingCancellationToken;
+
+    protected override void OnParametersSet()
+    {
+        PollingCancellationToken?.Cancel();
+
+        PollForUpdates();
+    }
+
+    private async void PollForUpdates()
+    {
+        PollingCancellationToken = new CancellationTokenSource();
+        while (!PollingCancellationToken.IsCancellationRequested)
+        {
+            try
+            {
+                InvalidOrder = false;
+                OrderWithStatus = await HttpClient.GetFromJsonAsync<OrderWithStatus>($"orders/{OrderId}");
+            }
+            catch (Exception ex)
+            {
+
+                InvalidOrder = true;
+                PollingCancellationToken.Cancel();
+                Console.Error.WriteLine(ex);
+            }
+
+            StateHasChanged();
+
+            await Task.Delay(4000);
+        }
+    }
+
+    void IDisposable.Dispose()
+    {
+        PollingCancellationToken?.Cancel();
+    }
+}

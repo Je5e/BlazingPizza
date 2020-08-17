@@ -1,5 +1,6 @@
 ﻿@page "/"
 @inject HttpClient HttpClient
+@inject NavigationManager NavigationManager 
 
 <div class="main">
     <ul class="pizza-cards">
@@ -38,7 +39,7 @@
     {
         <div class="empty-cart">Selecciona una pizza<br>para empezar</div>
     }
-    <div class="order-total @(Order.Pizzas.Any() ? "": "hidden")">
+    <div class="order-total @(Order.Pizzas.Any()? "":"hidden")">
         Total:
         <span class="total-price">@Order.GetFormattedTotalPrice()</span>
         <button class="btn btn-warning"
@@ -70,8 +71,12 @@
 
     async Task PlaceOrder()
     {
-        await HttpClient.PostAsJsonAsync("orders", Order);
+       var Response = await HttpClient.PostAsJsonAsync("orders", Order);
+
+        var NewOrderId = await Response.Content.ReadFromJsonAsync<int>();
         Order = new Order();
+
+        NavigationManager.NavigateTo($"myorders/{NewOrderId}");
     }
     void ConfirmConfigurePizzaDialog()
     {
