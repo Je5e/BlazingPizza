@@ -26,6 +26,7 @@ namespace BlazingPizza.Server.Controllers
         [HttpPost]
         public async Task<ActionResult<int>> PlaceOrder(Order order)
         {
+            //await Task.Delay(5000);
             order.CreatedTime = DateTime.Now;
             order.DeliveryLocation = new LatLong(19.043679206924864, -98.19811254438645);
 

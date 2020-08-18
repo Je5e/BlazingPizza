@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using BlazingPizza.Client.Services;
+using BlazingPizza.Shared;
 
 namespace BlazingPizza.Client
 {
@@ -15,6 +17,7 @@ namespace BlazingPizza.Client
         public static async Task Main(string[] args)
         {
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
+            builder.Services.AddScoped<OrderState>();
             builder.RootComponents.Add<App>("app"); // Enrutamiento
 
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
