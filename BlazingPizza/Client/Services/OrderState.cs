@@ -12,7 +12,7 @@ namespace BlazingPizza.Client.Services
         public bool ShowingConfigureDialog { get; private set; }
         public Order Order { get; private set; } = new Order();
 
-       public void ShowConfigurePizzaDialog(PizzaSpecial special)
+        public void ShowConfigurePizzaDialog(PizzaSpecial special)
         {
             ConfiguringPizza = new Pizza()
             {
@@ -25,13 +25,13 @@ namespace BlazingPizza.Client.Services
             ShowingConfigureDialog = true;
         }
 
-       public void CancelConfiguringPizzaDialog()
+        public void CancelConfiguringPizzaDialog()
         {
             ConfiguringPizza = null;
             ShowingConfigureDialog = false;
         }
 
-       public void ConfirmConfigurePizzaDialog()
+        public void ConfirmConfigurePizzaDialog()
         {
             Order.Pizzas.Add(ConfiguringPizza);
             ConfiguringPizza = null;
@@ -44,13 +44,18 @@ namespace BlazingPizza.Client.Services
             }
         }
 
-       public void RemoveConfiguredPizza(Pizza pizza)
+        public void RemoveConfiguredPizza(Pizza pizza)
         {
             Order.Pizzas.Remove(pizza);
         }
         public void ResetOrder()
         {
             Order = new Order();
+        }
+
+        public void ReplaceOrder(Order order)
+        {
+            Order = order;
         }
 
     }

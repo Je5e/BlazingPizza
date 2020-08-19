@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using BlazingPizza.Client.Services;
 using BlazingPizza.Shared;
+using Microsoft.AspNetCore.Components.Authorization;
 
 namespace BlazingPizza.Client
 {
@@ -18,6 +19,10 @@ namespace BlazingPizza.Client
         {
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.Services.AddScoped<OrderState>();
+            builder.Services.AddOptions();
+            builder.Services.AddAuthorizationCore();
+            builder.Services.AddScoped<AuthenticationStateProvider,
+                ServerAuthenticationStateProvider>();
             builder.RootComponents.Add<App>("app"); // Enrutamiento
 
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
