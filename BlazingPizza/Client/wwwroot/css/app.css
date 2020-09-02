@@ -548,7 +548,10 @@ input[type=range] {
     .order-total.hidden {
         transform: translate3d(0, 4rem, 0);
     }
-
+    .order-total.disabled {
+        pointer-events: none;
+        cursor: default;
+    }
     .order-total .total-price {
         font-weight: 700;
         font-size: 1.5rem;
@@ -618,10 +621,18 @@ input[type=range] {
     display: flex;
 }
 
+.track-order-body {
+    flex-grow: 1;
+    display: flex;
+}
 .track-order-details {
     overflow-y: auto;
     padding: 1.5rem 3rem;
     flex-grow: 1;
+}
+.track-order-map {
+    width: 50%;
+    flex-shrink: 0;
 }
 
 .checkout-cols {
@@ -737,5 +748,7 @@ a.sign-in {
     font-size: 0.8rem;
     padding: 0;
 }
+
+
 
 

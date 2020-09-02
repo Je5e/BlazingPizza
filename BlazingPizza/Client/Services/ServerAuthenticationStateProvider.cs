@@ -11,7 +11,7 @@ using System.Net.Http.Json;
 
 namespace BlazingPizza.Client.Services
 {
-    public class ServerAuthenticationStateProvider:AuthenticationStateProvider
+    public class ServerAuthenticationStateProvider : AuthenticationStateProvider
     {
         private readonly HttpClient HttpClient;
 
@@ -21,10 +21,10 @@ namespace BlazingPizza.Client.Services
         }
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-            var UserInfo = await HttpClient.GetFromJsonAsync<UserInfo>("user"); 
+            var UserInfo = await HttpClient.GetFromJsonAsync<UserInfo>("user");
             var Identity = UserInfo.IsAuthenticated ? new ClaimsIdentity(
-                new[] { new Claim(ClaimTypes.Name, UserInfo.Name) }, "serverauth") 
-                : new ClaimsIdentity(); 
+                new[] { new Claim(ClaimTypes.Name, UserInfo.Name) }, "serverauth")
+                : new ClaimsIdentity();
             return new AuthenticationState(new ClaimsPrincipal(Identity));
         }
     }

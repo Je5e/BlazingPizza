@@ -1,5 +1,6 @@
 ﻿@page "/"
 @inject HttpClient HttpClient
+@inject IJSRuntime JSRuntime
 @inject NavigationManager NavigationManager 
 @using BlazingPizza.Client.Services
 @inject OrderState OrderState 
@@ -33,7 +34,7 @@
             @foreach (var ConfiguredPizza in OrderState.Order.Pizzas)
             {
                 <ConfiguredPizzaItem Pizza="ConfiguredPizza"
-                                     OnRemove="@(()=>OrderState.RemoveConfiguredPizza(ConfiguredPizza))"/>
+                                     OnRemove="@(()=>RemovePizza(ConfiguredPizza))"/>
             }
         </div>
     }
@@ -44,8 +45,7 @@
     <div class="order-total @(OrderState.Order.Pizzas.Any()? "":"hidden")">
         Total:
         <span class="total-price">@OrderState.Order.GetFormattedTotalPrice()</span>
-        <a href="checkout" class="btn btn-warning"
-                disabled="@(OrderState.Order.Pizzas.Count==0)">
+        <a href="checkout" class="btn btn-warning @(OrderState.Order.Pizzas.Count== 0? "disabled":"")">
             Ordenar >
         </a>
     </div>
@@ -60,7 +60,7 @@
 }
 @code{
 
-    
+
     List<PizzaSpecial> Specials;
 
     protected async override Task OnInitializedAsync()
@@ -69,5 +69,13 @@
             await HttpClient.GetFromJsonAsync<List<PizzaSpecial>>("specials");
     }
 
-    
+    async Task RemovePizza(Pizza configuredPizza)
+    {
+        if (await JSRuntime.Confirm($"¿Eliminar la pizza {configuredPizza.Special.Name} de la orden?"))
+        {
+            OrderState.RemoveConfiguredPizza(configuredPizza);
+        }
+    }
+
+
 }
